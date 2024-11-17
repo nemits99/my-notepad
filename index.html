@@ -1,0 +1,215 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catatan Saya</title>
+
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="icon" href="icons/icon-192x192.png">
+  
+  <style>
+ 
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #000000;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+h1 {
+  color: #008000;
+}
+button {
+  background-color: #0080ff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 10px 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+button:active {
+  background-color: #3e8e41;
+}
+
+
+#notes-container {
+  width: 90%;
+  max-width: 600px;
+  margin: 20px auto;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: none;
+  padding: 20px;
+}
+
+.note {
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  position: relative;
+}
+
+.note textarea {
+  width: 100%;
+  height: 80px;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  resize: none;
+  box-sizing: border-box;
+  background-color: #fff;
+  font-size: 14px;
+}
+
+.note textarea:focus {
+  outline: 2px solid #4CAF50;
+}
+
+.note .delete-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 23px;
+}
+
+.note .delete-btn:hover {
+  background-color: darkred;
+}
+
+@media (max-width: 600px) {
+  button {
+    width: 100%;
+    font-size: 18px;
+    padding: 15px;
+  }
+
+  #notes-container {
+    padding: 10px;
+  }
+
+  .note textarea {
+    height: 60px;
+  }
+}
+
+   
+  </style>
+  </head>
+<body>
+  <h1>My Notepad</h1>
+
+  <button id="toggle-notes">Buka Catatan</button>
+  
+  <div id="notes-container">
+
+  </div>
+
+  <button id="add-note">Tambah Catatan</button>
+
+  <script>
+  
+    const toggleNotesBtn = document.getElementById('toggle-notes');
+    const addNoteBtn = document.getElementById('add-note');
+    const notesContainer = document.getElementById('notes-container');
+
+    function toggleNotes() {
+
+      if (notesContainer.style.display === "none") {
+        notesContainer.style.display = "block";
+      } else {
+        notesContainer.style.display = "none";
+      }
+    }
+
+  
+    function createNote(content = '') {
+      const note = document.createElement('div');
+      note.className = 'note';
+      
+      const textarea = document.createElement('textarea');
+      textarea.placeholder = 'Tulis sesuatu...';
+      textarea.value = content;
+
+      
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.textContent = 'x';
+      deleteBtn.addEventListener('click', () => {
+        note.remove(); 
+        saveNotes();   
+      });
+
+  
+      textarea.addEventListener('input', saveNotes);
+
+      note.appendChild(deleteBtn);
+      note.appendChild(textarea);
+      notesContainer.appendChild(note);
+    }
+
+    function saveNotes() {
+      const notes = [];
+      const textareas = document.querySelectorAll('.note textarea');
+      textareas.forEach(textarea => notes.push(textarea.value));
+      localStorage.setItem('notes', JSON.stringify(notes)); 
+    }
+
+    function loadNotes() {
+      const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+      notes.forEach(note => createNote(note));
+    }
+
+
+    window.onload = loadNotes;
+
+    toggleNotesBtn.addEventListener('click', toggleNotes);
+
+    addNoteBtn.addEventListener('click', () => {
+      createNote();  
+      saveNotes();   
+    });
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then((registration) => {
+        console.log('Service Worker terdaftar dengan sukses:', registration);
+      })
+      .catch((error) => {
+        console.log('Pendaftaran Service Worker gagal:', error);
+      });
+  });
+}
+
+  </script>
+</body>
+</html>
